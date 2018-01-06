@@ -40,7 +40,7 @@
 
   <!-- build properties -->
   <PropertyGroup>
-    <TargetFrameworks>netstandard1.3;netstandard1.0;net45;net40</TargetFrameworks>
+    <TargetFrameworks>netstandard1.3;netstandard2.0;net45</TargetFrameworks>
     <SignAssembly>true</SignAssembly>
     <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
     <AssemblyOriginatorKeyFile>..\..\..\google.apis.snk</AssemblyOriginatorKeyFile>
@@ -52,10 +52,6 @@
   </PropertyGroup>
   
   <!-- per-target dependencies -->
-  <ItemGroup Condition="'$(TargetFramework)'=='netstandard1.3'">
-    <PackageReference Include="Google.Apis" Version="1.29.2" />
-    <PackageReference Include="Google.Apis.Auth" Version="1.29.2" />
-  </ItemGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)'=='netstandard1.0'">
     <PackageTargetFallback>portable-net45+win8+wpa81+wp8</PackageTargetFallback>
@@ -68,18 +64,14 @@
     <PackageReference Include="Microsoft.NETCore.Portable.Compatibility" Version="1.0.1" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)'=='net45'">
-    <PackageReference Include="Google.Apis" Version="1.29.2" />
-    <PackageReference Include="Google.Apis.Auth" Version="1.29.2" />
+  <ItemGroup>
+    <ProjectReference Include="..\..\Support\Google.Apis.Auth\Google.Apis.Auth.csproj" />
+    <ProjectReference Include="..\..\Support\Google.Apis\Google.Apis.csproj" />
   </ItemGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)'=='net40'">
     <AutoUnifyAssemblyReferences>false</AutoUnifyAssemblyReferences>
     <AppConfig>app.net40.config</AppConfig>
   </PropertyGroup>
-  <ItemGroup Condition="'$(TargetFramework)'=='net40'">
-    <PackageReference Include="Google.Apis" Version="[1.10.0]" />
-    <PackageReference Include="Google.Apis.Auth" Version="[1.10.0]" />
-  </ItemGroup>
 
 </Project>
