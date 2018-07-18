@@ -358,7 +358,11 @@ namespace Google.Apis.Auth.OAuth2
         public async Task<AuthorizationCodeResponseUrl> ReceiveCodeAsync(AuthorizationCodeRequestUrl url,
             CancellationToken taskCancellationToken)
         {
+
             var authorizationUrl = url.Build().AbsoluteUri;
+
+            System.Diagnostics.Debug.WriteLine(authorizationUrl);
+
             // The listener type depends on platform:
             // * .NET desktop: System.Net.HttpListener
             // * .NET Core: LimitedLocalhostHttpServer (above, HttpListener is not available in any version of netstandard)
@@ -395,7 +399,7 @@ namespace Google.Apis.Auth.OAuth2
         /// <summary>Returns a random, unused port.</summary>
         private static int GetRandomUnusedPort()
         {
-            var listener = new TcpListener(IPAddress.Loopback, 0);
+            var listener = new System.Net.Sockets.TcpListener(IPAddress.Loopback, 0);
             try
             {
                 listener.Start();
