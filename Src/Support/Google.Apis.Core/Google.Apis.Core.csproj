@@ -19,19 +19,23 @@ Supported Platforms:
 - NetStandard1.3, providing .NET Core support
 - NetStandard2.0, providing .NET Core 2.0 support
     </Description>
+    <SignAssembly>false</SignAssembly>
   </PropertyGroup>
   
   <!-- package references; common then per-target -->
   <ItemGroup>
     <PackageReference Include="System.Net.Http" Version="4.3.3" />
-    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)'=='netstandard1.3' or '$(TargetFramework)'=='netstandard2.0'">
-    <PackageReference Include="System.Reflection.TypeExtensions" Version="4.4.0" />
+    <!-- PackageReference Include="System.Reflection.TypeExtensions" Version="4.4.0" / -->
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)'=='net45'">
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\NewtonsoftJson\Src\Newtonsoft.Json\Newtonsoft.Json.csproj" />
   </ItemGroup>
 
 </Project>

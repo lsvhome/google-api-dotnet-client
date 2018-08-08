@@ -14,7 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+using System.IO;
 using System.Net.Http;
+using System.Runtime.Serialization.Json;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -22,6 +25,7 @@ using Google.Apis.Auth.OAuth2.Responses;
 using Google.Apis.Json;
 using Google.Apis.Requests.Parameters;
 using Google.Apis.Util;
+using Newtonsoft.Json.Linq;
 
 namespace Google.Apis.Auth.OAuth2.Requests
 {
@@ -45,12 +49,22 @@ namespace Google.Apis.Auth.OAuth2.Requests
         public static async Task<TokenResponse> ExecuteAsync(this TokenRequest request, HttpClient httpClient,
             string tokenServerUrl, CancellationToken taskCancellationToken, IClock clock)
         {
+            System.Diagnostics.Debug.WriteLine("TokenRequestExtenstions.ExecuteAsync 001 "+ tokenServerUrl);
             var httpRequest = new HttpRequestMessage(HttpMethod.Post, tokenServerUrl);
+            System.Diagnostics.Debug.WriteLine("TokenRequestExtenstions.ExecuteAsync 002 "+httpRequest.GetType().Name);
             httpRequest.Content = ParameterUtils.CreateFormUrlEncodedContent(request);
+            //request.
+
+            System.Diagnostics.Debug.WriteLine("TokenRequestExtenstions.ExecuteAsync 003 "+httpClient.GetType().Name);
+
+            System.Diagnostics.Debug.WriteLine("TokenRequestExtenstions.ExecuteAsync 003-1 " + httpRequest.Content.ToString());
+            //System.Diagnostics.Debug.WriteLine("TokenRequestExtenstions.ExecuteAsync 003-1 " + httpRequest.Content..ToString());
 
             var response = await httpClient.SendAsync(httpRequest, taskCancellationToken).ConfigureAwait(false);
-            var content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
 
+            System.Diagnostics.Debug.WriteLine("TokenRequestExtenstions.ExecuteAsync 004 "+response.IsSuccessStatusCode);
+            var content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+            System.Diagnostics.Debug.WriteLine("TokenRequestExtenstions.ExecuteAsync 005 "+ content);
             if (!response.IsSuccessStatusCode)
             {
                 var error = NewtonsoftJsonSerializer.Instance.Deserialize<TokenErrorResponse>(content);
@@ -58,7 +72,46 @@ namespace Google.Apis.Auth.OAuth2.Requests
             }
 
             // Gets the token and sets its issued time.
+
+            //TokenResponse deserializedUser = new TokenResponse();
+            //MemoryStream ms = new MemoryStream(Encoding.UTF8.GetBytes(content));
+            //DataContractJsonSerializer ser = new DataContractJsonSerializer(typeof(TokenResponse));
+            //deserializedUser = ser.ReadObject(ms) as TokenResponse;
+
+            //ms.Close();
+
+            //System.Diagnostics.Debug.WriteLine($"TokenRequestExtenstions.ExecuteAsync 006 {deserializedUser != null} {deserializedUser?.IdToken} {deserializedUser?.AccessToken} {deserializedUser?.ExpiresInSeconds}" );
+
+            //ms = new MemoryStream();
+
+            //ser.WriteObject(ms, deserializedUser);
+
+            //var xx = Encoding.UTF8.GetString(ms.ToArray());
+
+            //ms.Close();
+
+
+            //System.Diagnostics.Debug.WriteLine("TokenRequestExtenstions.ExecuteAsync 007 restored" + xx);
+
+            //var newToken = deserializedUser;
+
+
+
+
+
+
+            ////var newToken = JObject.Parse(content).ToObject<TokenResponse>();
+
+
+
+
+            ////new System.Web.Script.Serialization.JavaScriptSerializer().Deserialize<TokenResponse>(json);
+
             var newToken = NewtonsoftJsonSerializer.Instance.Deserialize<TokenResponse>(content);
+
+
+            System.Diagnostics.Debug.WriteLine($"TokenRequestExtenstions.ExecuteAsync 008 {newToken.ExpiresInSeconds} {newToken.AccessToken} {newToken.IdToken}");
+
             newToken.IssuedUtc = clock.UtcNow;
             return newToken;
         }

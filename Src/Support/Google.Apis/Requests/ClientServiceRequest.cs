@@ -16,6 +16,7 @@ limitations under the License.
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -177,7 +178,18 @@ namespace Google.Apis.Requests
         {
             using (var request = CreateRequest())
             {
-                return await service.HttpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
+                Debug.WriteLine("YYYYYYYYYYYYY "+service.HttpClient.GetType().Name);
+                var t = await service.HttpClient.GetAsync("http://localhost:59807/api/Config/ClientConfig");
+                Debug.WriteLine("FFFFFFFFFFFFFFFF " + t.IsSuccessStatusCode);
+                Debug.WriteLine("FFFFFFFFFFFFFFFF01 " + service.HttpClient);
+                Debug.WriteLine("FFFFFFFFFFFFFFFF02 " + service.HttpClient.BaseAddress);
+                service.HttpClient.BaseAddress = new Uri("https://www.googleapis.com");
+                Debug.WriteLine("FFFFFFFFFFFFFFFF03 " + service.HttpClient.BaseAddress);
+                var ret = await service.HttpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
+
+                Debug.WriteLine("GGGGGGGGGGGGGGGG " + ret.IsSuccessStatusCode);
+
+                return ret;
             }
         }
 
@@ -186,7 +198,11 @@ namespace Google.Apis.Requests
         {
             if (response.IsSuccessStatusCode)
             {
-                return await service.DeserializeResponse<TResponse>(response).ConfigureAwait(false);
+                Debug.WriteLine("ParseResponse 001 " + response.IsSuccessStatusCode);
+
+                var ret = await service.DeserializeResponse<TResponse>(response).ConfigureAwait(false);
+                Debug.WriteLine("ParseResponse 002 " + ret);
+                return ret;
             }
             var error = await service.DeserializeError(response).ConfigureAwait(false);
             throw new GoogleApiException(service.Name, error.ToString())

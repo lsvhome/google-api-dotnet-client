@@ -40,7 +40,6 @@ namespace Google.Apis.Auth.OAuth2
             CancellationToken taskCancellationToken)
         {
 
-            url.
             var authorizationUrl = url.Build().AbsoluteUri;
 
 #if NETSTANDARD1_3 || NETSTANDARD2_0

@@ -57,7 +57,7 @@ namespace Google.Apis.Auth.OAuth2
     public class ServiceAccountCredential : ServiceCredential
     {
         private const string Sha256Oid = "2.16.840.1.101.3.4.2.1";
-        /// <summary>An initializer class for the service account credential. </summary>
+        /// <summary>An baseClientServiceInitializer class for the service account credential. </summary>
         new public class Initializer : ServiceCredential.Initializer
         {
             /// <summary>Gets the service account ID (typically an e-mail address).</summary>
@@ -78,11 +78,11 @@ namespace Google.Apis.Auth.OAuth2
             /// </summary>
             public RsaKey Key { get; set; }
 
-            /// <summary>Constructs a new initializer using the given id.</summary>
+            /// <summary>Constructs a new baseClientServiceInitializer using the given id.</summary>
             public Initializer(string id)
                 : this(id, GoogleAuthConsts.OidcTokenUrl) { }
 
-            /// <summary>Constructs a new initializer using the given id and the token server URL.</summary>
+            /// <summary>Constructs a new baseClientServiceInitializer using the given id and the token server URL.</summary>
             public Initializer(string id, string tokenServerUrl) : base(tokenServerUrl)
             {
                 Id = id;
@@ -145,13 +145,13 @@ namespace Google.Apis.Auth.OAuth2
         /// <summary><c>true</c> if this credential has any scopes associated with it.</summary>
         internal bool HasScopes { get { return scopes != null && scopes.Any(); } }
 
-        /// <summary>Constructs a new service account credential using the given initializer.</summary>
+        /// <summary>Constructs a new service account credential using the given baseClientServiceInitializer.</summary>
         public ServiceAccountCredential(Initializer initializer) : base(initializer)
         {
-            id = initializer.Id.ThrowIfNullOrEmpty("initializer.Id");
+            id = initializer.Id.ThrowIfNullOrEmpty("baseClientServiceInitializer.Id");
             user = initializer.User;
             scopes = initializer.Scopes;
-            key = initializer.Key.ThrowIfNull("initializer.Key");
+            key = initializer.Key.ThrowIfNull("baseClientServiceInitializer.Key");
         }
 
         /// <summary>

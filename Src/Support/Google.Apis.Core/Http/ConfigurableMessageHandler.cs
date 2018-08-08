@@ -408,11 +408,16 @@ namespace Google.Apis.Http
                     interceptors.AddRange(perCallinterceptors);
                 }
 
+                System.Diagnostics.Debug.WriteLine($"ConfigurableMessageHandler 010 {interceptors.Count()}");
+
                 // Intercept the request.
                 foreach (var interceptor in interceptors)
                 {
+                    System.Diagnostics.Debug.WriteLine($"ConfigurableMessageHandler 011 {interceptor}");
                     await interceptor.InterceptAsync(request, cancellationToken).ConfigureAwait(false);
+                    System.Diagnostics.Debug.WriteLine($"ConfigurableMessageHandler 012 {interceptor}");
                 }
+
                 if (loggable)
                 {
                     if ((LogEvents & LogEventType.RequestUri) != 0)

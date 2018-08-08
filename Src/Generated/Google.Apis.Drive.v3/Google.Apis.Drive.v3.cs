@@ -57,12 +57,12 @@ namespace Google.Apis.Drive.v3
 
         /// <summary>Constructs a new service.</summary>
         public DriveService() :
-            this(new Google.Apis.Services.BaseClientService.Initializer()) {}
+            this(new Google.Apis.Services.BaseClientServiceInitializer()) {}
 
         /// <summary>Constructs a new service.</summary>
-        /// <param name="initializer">The service initializer.</param>
-        public DriveService(Google.Apis.Services.BaseClientService.Initializer initializer)
-            : base(initializer)
+        /// <param name="baseClientServiceInitializer">The service baseClientServiceInitializer.</param>
+        public DriveService(Google.Apis.Services.BaseClientServiceInitializer baseClientServiceInitializer)
+            : base(baseClientServiceInitializer)
         {
             about = new AboutResource(this);
             changes = new ChangesResource(this);

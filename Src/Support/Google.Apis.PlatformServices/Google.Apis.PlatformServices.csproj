@@ -6,6 +6,7 @@
     <TargetFrameworks>netstandard2.0;net45</TargetFrameworks>
     <TargetFrameworks Condition="'$(OS)' != 'Windows_NT'">netstandard2.0;netstandard1.3</TargetFrameworks>
     <IsPackable>false</IsPackable>
+    <DelaySign>false</DelaySign>
   </PropertyGroup>
 
   <ItemGroup>

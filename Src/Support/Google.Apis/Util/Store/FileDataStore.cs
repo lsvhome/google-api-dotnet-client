@@ -19,6 +19,8 @@ limitations under the License.
 using Google.Apis.Json;
 using System;
 using System.IO;
+using System.Runtime.Serialization.Json;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace Google.Apis.Util.Store
@@ -98,6 +100,15 @@ namespace Google.Apis.Util.Store
             }
 
             var serialized = NewtonsoftJsonSerializer.Instance.Serialize(value);
+
+            //MemoryStream ms = new MemoryStream();
+            //DataContractJsonSerializer ser = new DataContractJsonSerializer(typeof(T));
+            //ser.WriteObject(ms, value);
+            //byte[] json = ms.ToArray();
+            //ms.Close();
+            //var serialized = Encoding.UTF8.GetString(json, 0, json.Length);
+
+
             var filePath = Path.Combine(folderPath, GenerateStoredKey(key, typeof(T)));
             File.WriteAllText(filePath, serialized);
             return CompletedTask;

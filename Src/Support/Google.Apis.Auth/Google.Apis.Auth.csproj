@@ -21,6 +21,7 @@ Supported Platforms:
 - NetStandard1.3, providing .NET Core support
 - NetStandard2.0, providing .NET Core 2.0 support
     </Description>
+    <SignAssembly>false</SignAssembly>
   </PropertyGroup>
 
   <!-- package references; common then per-target -->

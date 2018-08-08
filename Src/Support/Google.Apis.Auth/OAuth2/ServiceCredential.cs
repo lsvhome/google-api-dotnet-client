@@ -44,7 +44,7 @@ namespace Google.Apis.Auth.OAuth2
         /// <summary>Logger for this class</summary>
         protected static readonly ILogger Logger = ApplicationContext.Logger.ForType<ServiceCredential>();
 
-        /// <summary>An initializer class for the service credential. </summary>
+        /// <summary>An baseClientServiceInitializer class for the service credential. </summary>
         public class Initializer
         {
             /// <summary>Gets the token server URL.</summary>
@@ -77,7 +77,7 @@ namespace Google.Apis.Auth.OAuth2
             /// </summary>
             public ExponentialBackOffPolicy DefaultExponentialBackOffPolicy { get; set; }
 
-            /// <summary>Constructs a new initializer using the given token server URL.</summary>
+            /// <summary>Constructs a new baseClientServiceInitializer using the given token server URL.</summary>
             public Initializer(string tokenServerUrl)
             {
                 TokenServerUrl = tokenServerUrl;
@@ -131,17 +131,17 @@ namespace Google.Apis.Auth.OAuth2
             }
         }
 
-        /// <summary>Constructs a new service account credential using the given initializer.</summary>
+        /// <summary>Constructs a new service account credential using the given baseClientServiceInitializer.</summary>
         public ServiceCredential(Initializer initializer)
         {
             tokenServerUrl = initializer.TokenServerUrl;
-            accessMethod = initializer.AccessMethod.ThrowIfNull("initializer.AccessMethod");
-            clock = initializer.Clock.ThrowIfNull("initializer.Clock");
+            accessMethod = initializer.AccessMethod.ThrowIfNull("baseClientServiceInitializer.AccessMethod");
+            clock = initializer.Clock.ThrowIfNull("baseClientServiceInitializer.Clock");
 
             // Set the HTTP client.
             var httpArgs = new CreateHttpClientArgs();
 
-            // Add exponential back-off initializer if necessary.
+            // Add exponential back-off baseClientServiceInitializer if necessary.
             if (initializer.DefaultExponentialBackOffPolicy != ExponentialBackOffPolicy.None)
             {
                 httpArgs.Initializers.Add(

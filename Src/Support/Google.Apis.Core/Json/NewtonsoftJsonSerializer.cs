@@ -179,8 +179,10 @@ namespace Google.Apis.Json
         /// <inheritdoc/>
         public T Deserialize<T>(string input)
         {
+            System.Diagnostics.Debug.WriteLine("NewtonsoftJsonSerializer.Instance.Deserialize<TokenResponse>(content); 01");
             if (string.IsNullOrEmpty(input))
             {
+                System.Diagnostics.Debug.WriteLine("NewtonsoftJsonSerializer.Instance.Deserialize<TokenResponse>(content); 02");
                 return default(T);
             }
             return JsonConvert.DeserializeObject<T>(input, settings);
