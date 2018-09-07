@@ -179,16 +179,27 @@ namespace Google.Apis.Requests
             using (var request = CreateRequest())
             {
                 Debug.WriteLine("YYYYYYYYYYYYY "+service.HttpClient.GetType().Name);
-                var t = await service.HttpClient.GetAsync("http://localhost:59807/api/Config/ClientConfig");
-                Debug.WriteLine("FFFFFFFFFFFFFFFF " + t.IsSuccessStatusCode);
-                Debug.WriteLine("FFFFFFFFFFFFFFFF01 " + service.HttpClient);
-                Debug.WriteLine("FFFFFFFFFFFFFFFF02 " + service.HttpClient.BaseAddress);
+                //var t = await service.HttpClient.GetAsync("http://localhost:59807/api/Config/ClientConfig");
+                //Debug.WriteLine("FFFFFFFFFFFFFFFF " + t.IsSuccessStatusCode);
+                //Debug.WriteLine("FFFFFFFFFFFFFFFF01 " + service.HttpClient);
+                //Debug.WriteLine("FFFFFFFFFFFFFFFF02 " + service.HttpClient.BaseAddress);
                 service.HttpClient.BaseAddress = new Uri("https://www.googleapis.com");
-                Debug.WriteLine("FFFFFFFFFFFFFFFF03 " + service.HttpClient.BaseAddress);
+                Debug.WriteLine("FFFFFFFFFFFFFFFF03 service.HttpClient.BaseAddress=" + service.HttpClient.BaseAddress);
+                Debug.WriteLine("FFFFFFFFFFFFFFFF03 request.Method=" + request.Method);
+                Debug.WriteLine("FFFFFFFFFFFFFFFF03 request.RequestUri=" + request.RequestUri.ToString());
+                Debug.WriteLine("FFFFFFFFFFFFFFFF03 request.Headers=" + request.Headers);
+                Debug.WriteLine("FFFFFFFFFFFFFFFF03 request.Content=" + request.Content);
+                Debug.WriteLine("FFFFFFFFFFFFFFFF03 request.Properties=" + request.Properties);
+                Debug.WriteLine("FFFFFFFFFFFFFFFF03 request.ToString=" + request.ToString());
+                //if (request.RequestUri.Query)
+                request.RequestUri = request.RequestUri;
+
                 var ret = await service.HttpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
 
                 Debug.WriteLine("GGGGGGGGGGGGGGGG " + ret.IsSuccessStatusCode);
 
+                var s = await ret.Content.ReadAsStringAsync();
+                Debug.WriteLine("FFFFFFFFFFFFFFFF04 resnse=" + s);
                 return ret;
             }
         }

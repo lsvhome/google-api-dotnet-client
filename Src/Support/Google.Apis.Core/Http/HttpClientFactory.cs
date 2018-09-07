@@ -33,6 +33,7 @@ namespace Google.Apis.Http
         /// <inheritdoc/>
         public ConfigurableHttpClient CreateHttpClient(CreateHttpClientArgs args)
         {
+            System.Diagnostics.Debug.WriteLine("Google.Apis.Http.HttpClientFactory.CreateHttpClient() !!!!!!!!!!!!!!!!!!!!!!");
             // Create the handler.
             var handler = CreateHandler(args);
             var configurableHandler = new ConfigurableMessageHandler(handler)

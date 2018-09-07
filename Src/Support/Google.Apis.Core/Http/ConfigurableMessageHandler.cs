@@ -321,6 +321,7 @@ namespace Google.Apis.Http
         public ConfigurableMessageHandler(HttpMessageHandler httpMessageHandler)
             : base(httpMessageHandler)
         {
+            System.Diagnostics.Debug.WriteLine("ConfigurableMessageHandler.ctor");
             // set default values
             FollowRedirect = true;
             IsLoggingEnabled = true;
@@ -433,39 +434,58 @@ namespace Google.Apis.Http
                         await LogBody($"Request[{loggingRequestId}] Body: '{{0}}'", request.Content);
                     }
                 }
+
+                System.Diagnostics.Debug.WriteLine($"ConfigurableMessageHandler 013");
+
                 try
                 {
+                    System.Diagnostics.Debug.WriteLine($"ConfigurableMessageHandler 013-01 {base.InnerHandler.GetType().AssemblyQualifiedName}");
+                    
                     // Send the request!
-                    response = await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
+                    response = await base.SendAsync(request, cancellationToken);//.ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
+                    System.Diagnostics.Debug.WriteLine($"ConfigurableMessageHandler 014 Error {ex}");
                     lastException = ex;
                 }
+
+                System.Diagnostics.Debug.WriteLine($"ConfigurableMessageHandler 015");
 
                 // Decrease the number of retries.
                 if (response == null || ((int)response.StatusCode >= 400 || (int)response.StatusCode < 200))
                 {
+                    System.Diagnostics.Debug.WriteLine($"ConfigurableMessageHandler 016");
                     triesRemaining--;
                 }
+
+                System.Diagnostics.Debug.WriteLine($"ConfigurableMessageHandler 017");
 
                 // Exception was thrown, try to handle it.
                 if (response == null)
                 {
+                    System.Diagnostics.Debug.WriteLine($"ConfigurableMessageHandler 018");
                     var exceptionHandled = false;
 
                     // We keep a local list of the handlers, since we can't call await inside lock.
                     List<IHttpExceptionHandler> handlers;
                     lock (exceptionHandlersLock)
                     {
+                        System.Diagnostics.Debug.WriteLine($"ConfigurableMessageHandler 019");
                         handlers = exceptionHandlers.ToList();
-                    }
-                    if (request.Properties.TryGetValue(ExceptionHandlerKey, out var handlersValue) &&
-                        handlersValue is List<IHttpExceptionHandler> perCallHandlers)
-                    {
-                        handlers.AddRange(perCallHandlers);
+                        System.Diagnostics.Debug.WriteLine($"ConfigurableMessageHandler 020");
                     }
 
+                    System.Diagnostics.Debug.WriteLine($"ConfigurableMessageHandler 021");
+
+                    if (request.Properties.TryGetValue(ExceptionHandlerKey, out var handlersValue) && handlersValue is List<IHttpExceptionHandler> perCallHandlers)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"ConfigurableMessageHandler 022");
+                        handlers.AddRange(perCallHandlers);
+                        System.Diagnostics.Debug.WriteLine($"ConfigurableMessageHandler 023");
+                    }
+
+                    System.Diagnostics.Debug.WriteLine($"ConfigurableMessageHandler 024");
                     // Try to handle the exception with each handler.
                     foreach (var handler in handlers)
                     {
@@ -479,6 +499,7 @@ namespace Google.Apis.Http
                             }).ConfigureAwait(false);
                     }
 
+                    System.Diagnostics.Debug.WriteLine($"ConfigurableMessageHandler 025");
                     if (!exceptionHandled)
                     {
                         InstanceLogger.Error(lastException,
@@ -490,9 +511,11 @@ namespace Google.Apis.Http
                         InstanceLogger.Debug("Response[{0}] Exception {1} was thrown, but it was handled by an exception handler",
                             loggingRequestId, lastException.Message);
                     }
+                    System.Diagnostics.Debug.WriteLine($"ConfigurableMessageHandler 026");
                 }
                 else
                 {
+                    System.Diagnostics.Debug.WriteLine($"ConfigurableMessageHandler 027");
                     if (loggable)
                     {
                         if ((LogEvents & LogEventType.ResponseStatus) != 0)
@@ -579,6 +602,9 @@ namespace Google.Apis.Http
                 }
             } while (triesRemaining > 0); // Not a successful status code but it was handled.
 
+
+
+            System.Diagnostics.Debug.WriteLine($"ConfigurableMessageHandler 028");
             // If the response is null, we should throw the last exception.
             if (response == null)
             {
@@ -590,6 +616,7 @@ namespace Google.Apis.Http
                 InstanceLogger.Debug("Response[{0}] Abnormal response is being returned. Status Code is {1}", loggingRequestId, response.StatusCode);
             }
 
+            System.Diagnostics.Debug.WriteLine($"ConfigurableMessageHandler 030");
             return response;
         }
 
