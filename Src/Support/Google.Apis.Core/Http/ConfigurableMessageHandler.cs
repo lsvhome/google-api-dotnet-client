@@ -442,7 +442,7 @@ namespace Google.Apis.Http
                     System.Diagnostics.Debug.WriteLine($"ConfigurableMessageHandler 013-01 {base.InnerHandler.GetType().AssemblyQualifiedName}");
                     
                     // Send the request!
-                    response = await base.SendAsync(request, cancellationToken);//.ConfigureAwait(false);
+                    response = await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
