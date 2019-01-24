@@ -163,74 +163,74 @@ namespace Google.Apis.Services
         /// <inheritdoc/>
         public virtual async Task<T> DeserializeResponse<T>(HttpResponseMessage response)
         {
-            Debug.WriteLine("DeserializeResponse 001 ");
+            //Debug.WriteLine("DeserializeResponse 001 ");
             var text = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-            Debug.WriteLine("DeserializeResponse 002 " + text);
+            //Debug.WriteLine("DeserializeResponse 002 " + text);
 
 
             // If a string is request, don't parse the response.
             if (Type.Equals(typeof(T), typeof(string)))
             {
-                Debug.WriteLine("DeserializeResponse 003 ");
+                //Debug.WriteLine("DeserializeResponse 003 ");
                 return (T)(object)text;
             }
 
-            Debug.WriteLine("DeserializeResponse 004 ");
+            //Debug.WriteLine("DeserializeResponse 004 ");
 
             // Check if there was an error returned. The error node is returned in both paths
             // Deserialize the stream based upon the format of the stream.
             if (HasFeature(Discovery.Features.LegacyDataResponse))
             {
-                Debug.WriteLine("DeserializeResponse 005 ");
+                //Debug.WriteLine("DeserializeResponse 005 ");
                 // Legacy path (deprecated!)
                 StandardResponse<T> sr = null;
                 try
                 {
-                    Debug.WriteLine("DeserializeResponse 006 ");
+                    //Debug.WriteLine("DeserializeResponse 006 ");
                     sr = Serializer.Deserialize<StandardResponse<T>>(text);
-                    Debug.WriteLine("DeserializeResponse 007 ");
+                    //Debug.WriteLine("DeserializeResponse 007 ");
                 }
                 catch (JsonReaderException ex)
                 {
-                    Debug.WriteLine("DeserializeResponse 008 ");
+                    //Debug.WriteLine("DeserializeResponse 008 ");
                     throw new GoogleApiException(Name,
                         "Failed to parse response from server as json [" + text + "]", ex);
                 }
 
-                Debug.WriteLine("DeserializeResponse 009 ");
+                //Debug.WriteLine("DeserializeResponse 009 ");
                 if (sr.Error != null)
                 {
-                    Debug.WriteLine("DeserializeResponse 010 ");
+                    //Debug.WriteLine("DeserializeResponse 010 ");
                     throw new GoogleApiException(Name, "Server error - " + sr.Error)
                     {
                         Error = sr.Error
                     };
                 }
 
-                Debug.WriteLine("DeserializeResponse 011 ");
+                //Debug.WriteLine("DeserializeResponse 011 ");
                 if (sr.Data == null)
                 {
-                    Debug.WriteLine("DeserializeResponse 012 ");
+                    //Debug.WriteLine("DeserializeResponse 012 ");
                     throw new GoogleApiException(Name, "The response could not be deserialized.");
                 }
 
-                Debug.WriteLine("DeserializeResponse 013 ");
+                //Debug.WriteLine("DeserializeResponse 013 ");
                 return sr.Data;
             }
 
-            Debug.WriteLine("DeserializeResponse 014 ");
+            //Debug.WriteLine("DeserializeResponse 014 ");
             // New path: Deserialize the object directly.
             T result = default(T);
-            Debug.WriteLine("DeserializeResponse 015 ");
+            //Debug.WriteLine("DeserializeResponse 015 ");
             try
             {
-                Debug.WriteLine($"DeserializeResponse 016 {Serializer != null}");
+                Debug.WriteLine($"DeserializeResponse 016 {Serializer != null} {Serializer?.GetType().FullName}");
                 result = Serializer.Deserialize<T>(text);
-                Debug.WriteLine("DeserializeResponse 017 ");
+                //Debug.WriteLine("DeserializeResponse 017 ");
             }
             catch (JsonReaderException ex)
             {
-                Debug.WriteLine("DeserializeResponse 018 ");
+                //Debug.WriteLine("DeserializeResponse 018 ");
                 throw new GoogleApiException(Name, "Failed to parse response from server as json [" + text + "]", ex);
             }
 
@@ -238,16 +238,16 @@ namespace Google.Apis.Services
             // If this schema/object provides an error container, check it.
             var eTag = response.Headers.ETag != null ? response.Headers.ETag.Tag : null;
 
-            Debug.WriteLine("DeserializeResponse 019 ");
+            //Debug.WriteLine("DeserializeResponse 019 ");
 
             if (result is IDirectResponseSchema && eTag != null)
             {
-                Debug.WriteLine("DeserializeResponse 020 ");
+                //Debug.WriteLine("DeserializeResponse 020 ");
                 (result as IDirectResponseSchema).ETag = eTag;
-                Debug.WriteLine("DeserializeResponse 021 ");
+                //Debug.WriteLine("DeserializeResponse 021 ");
             }
 
-            Debug.WriteLine("DeserializeResponse 022 ");
+            //Debug.WriteLine("DeserializeResponse 022 ");
             return result;
         }
 

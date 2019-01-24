@@ -183,7 +183,8 @@ namespace Google.Apis.Requests
                 Debug.WriteLine("FFFFFFFFFFFFFFFF " + t.IsSuccessStatusCode);
                 Debug.WriteLine("FFFFFFFFFFFFFFFF01 " + service.HttpClient);
                 Debug.WriteLine("FFFFFFFFFFFFFFFF02 " + service.HttpClient.BaseAddress);
-                service.HttpClient.BaseAddress = new Uri("https://www.googleapis.com");
+                service.HttpClient.BaseAddress = new Uri("https://drive.google.com");
+                //service.HttpClient.DefaultRequestHeaders.
                 Debug.WriteLine("FFFFFFFFFFFFFFFF03 " + service.HttpClient.BaseAddress);
                 var ret = await service.HttpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
 

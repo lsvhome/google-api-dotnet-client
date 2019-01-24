@@ -60,7 +60,7 @@ namespace Google.Apis.Auth.OAuth2.Requests
             System.Diagnostics.Debug.WriteLine("TokenRequestExtenstions.ExecuteAsync 003-1 " + httpRequest.Content.ToString());
             //System.Diagnostics.Debug.WriteLine("TokenRequestExtenstions.ExecuteAsync 003-1 " + httpRequest.Content..ToString());
 
-            var response = await httpClient.SendAsync(httpRequest, taskCancellationToken).ConfigureAwait(false);
+            var response = await httpClient.SendAsync(httpRequest, taskCancellationToken);
 
             System.Diagnostics.Debug.WriteLine("TokenRequestExtenstions.ExecuteAsync 004 "+response.IsSuccessStatusCode);
             var content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
