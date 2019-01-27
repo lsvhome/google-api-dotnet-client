@@ -101,7 +101,7 @@ namespace Google.Apis.Auth.OAuth2.Flows
             return IncludeGrantedScopes.HasValue && IncludeGrantedScopes.Value;
         }
 
-        /// <summary>An baseClientServiceInitializer class for Google authorization code flow. </summary>
+        /// <summary>An initializer class for Google authorization code flow. </summary>
         public new class Initializer : AuthorizationCodeFlow.Initializer
         {
             /// <summary>Gets or sets the token revocation URL.</summary>
@@ -116,7 +116,7 @@ namespace Google.Apis.Auth.OAuth2.Flows
             public IEnumerable<KeyValuePair<string, string>> UserDefinedQueryParams { get; set; }
 
             /// <summary>
-            /// Constructs a new baseClientServiceInitializer. Sets Authorization server URL to 
+            /// Constructs a new initializer. Sets Authorization server URL to 
             /// <see cref="Google.Apis.Auth.OAuth2.GoogleAuthConsts.OidcAuthorizationUrl"/>, and Token server URL to 
             /// <see cref="Google.Apis.Auth.OAuth2.GoogleAuthConsts.OidcTokenUrl"/>.
             /// </summary>
@@ -125,7 +125,7 @@ namespace Google.Apis.Auth.OAuth2.Flows
             {
             }
 
-            /// <summary>Constructs a new baseClientServiceInitializer.</summary>
+            /// <summary>Constructs a new initializer.</summary>
             /// <param name="authorizationServerUrl">Authorization server URL</param>
             /// <param name="tokenServerUrl">Token server URL</param>
             /// <param name="revokeTokenUrl">Revocation server URL</param>

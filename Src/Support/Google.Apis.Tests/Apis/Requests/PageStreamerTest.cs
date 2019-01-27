@@ -45,7 +45,7 @@ namespace Google.Apis.Tests.Apis.Requests
             new Page("c", 4, 5),
             new Page("d"));
 
-        public static IEnumerable<object[]> AllResources = new[] {
+        public static PageStreamedResource[][] AllResources = new[] {
             simpleResource,
             resourceWithEmptyPages
         }.Select(x => new[] { x }).ToArray();

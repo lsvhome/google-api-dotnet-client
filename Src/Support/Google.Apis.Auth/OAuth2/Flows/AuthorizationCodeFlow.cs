@@ -45,9 +45,9 @@ namespace Google.Apis.Auth.OAuth2.Flows
     {
         private static readonly ILogger Logger = ApplicationContext.Logger.ForType<AuthorizationCodeFlow>();
 
-        #region BaseClientServiceInitializer
+        #region Initializer
 
-        /// <summary>An baseClientServiceInitializer class for the authorization code flow. </summary>
+        /// <summary>An initializer class for the authorization code flow. </summary>
         public class Initializer
         {
             /// <summary>
@@ -101,7 +101,7 @@ namespace Google.Apis.Auth.OAuth2.Flows
             /// </summary>
             public IClock Clock { get; set; }
 
-            /// <summary>Constructs a new baseClientServiceInitializer.</summary>
+            /// <summary>Constructs a new initializer.</summary>
             /// <param name="authorizationServerUrl">Authorization server URL</param>
             /// <param name="tokenServerUrl">Token server URL</param>
             public Initializer(string authorizationServerUrl, string tokenServerUrl)
@@ -149,7 +149,7 @@ namespace Google.Apis.Auth.OAuth2.Flows
         /// <summary>Gets the HTTP client used to make authentication requests to the server.</summary>
         public ConfigurableHttpClient HttpClient { get { return httpClient; } }
 
-        /// <summary>Constructs a new flow using the baseClientServiceInitializer's properties.</summary>
+        /// <summary>Constructs a new flow using the initializer's properties.</summary>
         public AuthorizationCodeFlow(Initializer initializer)
         {
             clientSecrets = initializer.ClientSecrets;
@@ -157,7 +157,7 @@ namespace Google.Apis.Auth.OAuth2.Flows
             {
                 if (initializer.ClientSecretsStream == null)
                 {
-                    throw new ArgumentException("You MUST set ClientSecret or ClientSecretStream on the baseClientServiceInitializer");
+                    throw new ArgumentException("You MUST set ClientSecret or ClientSecretStream on the initializer");
                 }
 
                 using (initializer.ClientSecretsStream)
@@ -168,14 +168,14 @@ namespace Google.Apis.Auth.OAuth2.Flows
             else if (initializer.ClientSecretsStream != null)
             {
                 throw new ArgumentException(
-                    "You CAN'T set both ClientSecrets AND ClientSecretStream on the baseClientServiceInitializer");
+                    "You CAN'T set both ClientSecrets AND ClientSecretStream on the initializer");
             }
 
-            accessMethod = initializer.AccessMethod.ThrowIfNull("BaseClientServiceInitializer.AccessMethod");
-            clock = initializer.Clock.ThrowIfNull("BaseClientServiceInitializer.Clock");
-            tokenServerUrl = initializer.TokenServerUrl.ThrowIfNullOrEmpty("BaseClientServiceInitializer.TokenServerUrl");
+            accessMethod = initializer.AccessMethod.ThrowIfNull("Initializer.AccessMethod");
+            clock = initializer.Clock.ThrowIfNull("Initializer.Clock");
+            tokenServerUrl = initializer.TokenServerUrl.ThrowIfNullOrEmpty("Initializer.TokenServerUrl");
             authorizationServerUrl = initializer.AuthorizationServerUrl.ThrowIfNullOrEmpty
-                ("BaseClientServiceInitializer.AuthorizationServerUrl");
+                ("Initializer.AuthorizationServerUrl");
 
             dataStore = initializer.DataStore;
             if (dataStore == null)
@@ -187,17 +187,14 @@ namespace Google.Apis.Auth.OAuth2.Flows
             // Set the HTTP client.
             var httpArgs = new CreateHttpClientArgs();
 
-            // Add exponential back-off baseClientServiceInitializer if necessary.
+            // Add exponential back-off initializer if necessary.
             if (initializer.DefaultExponentialBackOffPolicy != ExponentialBackOffPolicy.None)
             {
                 httpArgs.Initializers.Add(
                     new ExponentialBackOffInitializer(initializer.DefaultExponentialBackOffPolicy,
                         () => new BackOffHandler(new ExponentialBackOff())));
             }
-
             Debug.WriteLine($"AuthorizationCodeFlow.ctor baseClientServiceInitializer {initializer != null} {initializer?.GetType().Name} {initializer?.HttpClientFactory?.GetType().Name}");
-
-
             httpClient = (initializer.HttpClientFactory ?? new HttpClientFactory()).CreateHttpClient(httpArgs);
         }
 
@@ -251,8 +248,7 @@ namespace Google.Apis.Auth.OAuth2.Flows
                 Scope = string.Join(" ", Scopes),
                 RedirectUri = redirectUri,
                 Code = code,
-                ClientId = clientSecrets.ClientId,
-                //ClientSecret = clientSecrets.ClientSecret
+                //ClientId = clientSecrets.ClientId,
             };
 
             System.Diagnostics.Debug.WriteLine("ExchangeCodeForTokenAsync 002 ");
@@ -328,7 +324,6 @@ namespace Google.Apis.Auth.OAuth2.Flows
                 System.Diagnostics.Debug.WriteLine("FetchTokenAsync 002 ");
                 var tokenResponse = await request.ExecuteAsync
                     (httpClient, TokenServerUrl, taskCancellationToken, Clock).ConfigureAwait(false);
-
                 System.Diagnostics.Debug.WriteLine("FetchTokenAsync 003 " + tokenResponse?.IdToken);
                 return tokenResponse;
             }
@@ -346,10 +341,8 @@ namespace Google.Apis.Auth.OAuth2.Flows
                     // If not a server error, then delete the user token information.
                     // This is to guard against suspicious client-side behaviour.
                     await DeleteTokenAsync(userId, taskCancellationToken).ConfigureAwait(false);
-
                     System.Diagnostics.Debug.WriteLine("FetchTokenAsync Error 004");
                 }
-
                 System.Diagnostics.Debug.WriteLine("FetchTokenAsync Error 005");
                 throw;
             }

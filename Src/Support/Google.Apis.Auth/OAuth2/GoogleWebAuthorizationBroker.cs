@@ -127,7 +127,7 @@ namespace Google.Apis.Auth.OAuth2
         /// The core logic for asynchronously authorizing the specified user.
         /// Requires user interaction; see <see cref="GoogleWebAuthorizationBroker"/> remarks for more details.
         /// </summary>
-        /// <param name="initializer">The authorization code baseClientServiceInitializer.</param>
+        /// <param name="initializer">The authorization code initializer.</param>
         /// <param name="scopes">
         /// The scopes which indicate the Google API access your application is requesting.
         /// </param>

@@ -374,8 +374,6 @@ namespace Google.Apis.Http
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
             CancellationToken cancellationToken)
         {
-            //request.RequestUri = new Uri("http://ukr.net/");
-            //request.
             var loggable = IsLoggingEnabled && InstanceLogger.IsDebugEnabled;
             System.Diagnostics.Debug.WriteLine($"UUUUUUU {loggable} {IsLoggingEnabled} {InstanceLogger.IsDebugEnabled} {InstanceLogger.GetType().Name}");
             string loggingRequestId = "";
@@ -446,17 +444,9 @@ namespace Google.Apis.Http
                 }
                 try
                 {
-                    //request.Headers.Add("Access-Control-Allow-Origin", "*");
-                    foreach (var each in request.Headers)
-                    {
-                        
-                        System.Diagnostics.Debug.WriteLine($"ConfigurableMessageHandler 013=01 {each.Key}    :    {each.Value}");
-
-                    }
-
                     System.Diagnostics.Debug.WriteLine($"ConfigurableMessageHandler 013");
                     // Send the request!
-                    response = await base.SendAsync(request, cancellationToken);//.ConfigureAwait(false);
+                    response = await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
                     System.Diagnostics.Debug.WriteLine($"ConfigurableMessageHandler 014");
                 }
                 catch (Exception ex)

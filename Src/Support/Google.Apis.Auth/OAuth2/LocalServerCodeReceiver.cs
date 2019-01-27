@@ -358,7 +358,6 @@ namespace Google.Apis.Auth.OAuth2
         public async Task<AuthorizationCodeResponseUrl> ReceiveCodeAsync(AuthorizationCodeRequestUrl url,
             CancellationToken taskCancellationToken)
         {
-
             var authorizationUrl = url.Build().AbsoluteUri;
 
             System.Diagnostics.Debug.WriteLine(authorizationUrl);
@@ -422,7 +421,7 @@ namespace Google.Apis.Auth.OAuth2
             return new AuthorizationCodeResponseUrl(queryParams);
         }
 
-        protected virtual bool OpenBrowser(string url)
+        private bool OpenBrowser(string url)
         {
             // See https://github.com/dotnet/corefx/issues/10361
             // This is best-effort only, but should work most of the time.

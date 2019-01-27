@@ -70,6 +70,7 @@ namespace Google.Apis.Auth.OAuth2
             // Try to load a token from the data store.
             var token = await Flow.LoadTokenAsync(userId, taskCancellationToken).ConfigureAwait(false);
             System.Diagnostics.Debug.WriteLine("AuthorizeAsync 004 " + token);
+
             // Check if a new authorization code is needed.
 
             System.Diagnostics.Debug.WriteLine("AuthorizeAsync 005 " + ShouldRequestAuthorizationCode(token));
@@ -86,7 +87,6 @@ namespace Google.Apis.Auth.OAuth2
                 var response = await CodeReceiver.ReceiveCodeAsync(codeRequest, taskCancellationToken)
                     .ConfigureAwait(false);
                 System.Diagnostics.Debug.WriteLine("AuthorizeAsync 009 "+ string.IsNullOrEmpty(response.Code) + "   "+ response.Code);
-
 
                 if (string.IsNullOrEmpty(response.Code))
                 {

@@ -186,11 +186,10 @@ namespace Google.Apis.Requests
                 service.HttpClient.BaseAddress = new Uri("https://drive.google.com");
                 //service.HttpClient.DefaultRequestHeaders.
                 Debug.WriteLine("FFFFFFFFFFFFFFFF03 " + service.HttpClient.BaseAddress);
-                var ret = await service.HttpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
-
-                Debug.WriteLine("GGGGGGGGGGGGGGGG " + ret.IsSuccessStatusCode);
-
-                return ret;
+                return await service.HttpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
+                //var ret = await service.HttpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
+                //Debug.WriteLine("GGGGGGGGGGGGGGGG " + ret.IsSuccessStatusCode);
+                //return ret;
             }
         }
 
@@ -200,10 +199,10 @@ namespace Google.Apis.Requests
             if (response.IsSuccessStatusCode)
             {
                 Debug.WriteLine("ParseResponse 001 " + response.IsSuccessStatusCode);
-
-                var ret = await service.DeserializeResponse<TResponse>(response).ConfigureAwait(false);
-                Debug.WriteLine("ParseResponse 002 " + ret);
-                return ret;
+                return await service.DeserializeResponse<TResponse>(response).ConfigureAwait(false);
+                //var ret = await service.DeserializeResponse<TResponse>(response).ConfigureAwait(false);
+                //Debug.WriteLine("ParseResponse 002 " + ret);
+                //return ret;
             }
             var error = await service.DeserializeError(response).ConfigureAwait(false);
             throw new GoogleApiException(service.Name, error.ToString())

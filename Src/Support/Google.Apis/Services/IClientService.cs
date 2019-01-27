@@ -38,7 +38,7 @@ namespace Google.Apis.Services
         ConfigurableHttpClient HttpClient { get; }
 
         /// <summary>
-        /// Gets a HTTP client baseClientServiceInitializer which is able to custom properties on 
+        /// Gets a HTTP client initializer which is able to custom properties on 
         /// <see cref="Google.Apis.Http.ConfigurableHttpClient"/> and 
         /// <see cref="Google.Apis.Http.ConfigurableMessageHandler"/>.
         /// </summary>
