@@ -72,8 +72,10 @@ namespace Google.Apis.Auth.OAuth2
         /// </summary>
         public async Task InterceptAsync(HttpRequestMessage request, CancellationToken taskCancellationToken)
         {
+            System.Diagnostics.Debug.WriteLine($"UserCredential.InterceptAsync 001 {request.Headers.Authorization} {Token.ExpiresInSeconds}");
             var accessToken = await GetAccessTokenForRequestAsync(request.RequestUri.AbsoluteUri, taskCancellationToken).ConfigureAwait(false);
             Flow.AccessMethod.Intercept(request, Token.AccessToken);
+            System.Diagnostics.Debug.WriteLine($"UserCredential.InterceptAsync 002 {request.Headers.Authorization}");
         }
 
         #endregion

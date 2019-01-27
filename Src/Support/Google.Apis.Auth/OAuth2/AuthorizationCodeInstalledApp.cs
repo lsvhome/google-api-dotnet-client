@@ -64,19 +64,27 @@ namespace Google.Apis.Auth.OAuth2
         /// <inheritdoc/>
         public async Task<UserCredential> AuthorizeAsync(string userId, CancellationToken taskCancellationToken)
         {
+            //System.Diagnostics.Debug.WriteLine("AuthorizeAsync 001");
+            //Logger.Info("AuthorizeAsync 002");
+            //Logger.Error("AuthorizeAsync 003");
             // Try to load a token from the data store.
             var token = await Flow.LoadTokenAsync(userId, taskCancellationToken).ConfigureAwait(false);
+            //System.Diagnostics.Debug.WriteLine("AuthorizeAsync 004 " + token);
 
             // Check if a new authorization code is needed.
             if (ShouldRequestAuthorizationCode(token))
             {
+                //System.Diagnostics.Debug.WriteLine("AuthorizeAsync 006 ");
                 // Create an authorization code request.
                 var redirectUri = CodeReceiver.RedirectUri;
+                //System.Diagnostics.Debug.WriteLine("AuthorizeAsync 007 " + redirectUri);
                 AuthorizationCodeRequestUrl codeRequest = Flow.CreateAuthorizationCodeRequest(redirectUri);
+                //System.Diagnostics.Debug.WriteLine("AuthorizeAsync 008 " + codeRequest.ClientId);
 
                 // Receive the code.
                 var response = await CodeReceiver.ReceiveCodeAsync(codeRequest, taskCancellationToken)
                     .ConfigureAwait(false);
+                //System.Diagnostics.Debug.WriteLine("AuthorizeAsync 009 "+ string.IsNullOrEmpty(response.Code) + "   "+ response.Code);
 
                 if (string.IsNullOrEmpty(response.Code))
                 {
@@ -86,12 +94,13 @@ namespace Google.Apis.Auth.OAuth2
                 }
 
                 Logger.Debug("Received \"{0}\" code", response.Code);
-
+                //System.Diagnostics.Debug.WriteLine("AuthorizeAsync 010 "+ Flow.GetType().Name);
                 // Get the token based on the code.
                 token = await Flow.ExchangeCodeForTokenAsync(userId, response.Code, redirectUri,
                     taskCancellationToken).ConfigureAwait(false);
+                //System.Diagnostics.Debug.WriteLine("AuthorizeAsync 011 " +token?.IdToken);
             }
-
+            //System.Diagnostics.Debug.WriteLine("AuthorizeAsync End");
             return new UserCredential(flow, userId, token);
         }
 

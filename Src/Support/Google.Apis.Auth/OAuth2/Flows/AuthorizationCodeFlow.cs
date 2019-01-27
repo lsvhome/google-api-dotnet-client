@@ -16,6 +16,7 @@ limitations under the License.
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Net.Http;
 using System.Threading;
@@ -44,9 +45,9 @@ namespace Google.Apis.Auth.OAuth2.Flows
     {
         private static readonly ILogger Logger = ApplicationContext.Logger.ForType<AuthorizationCodeFlow>();
 
-        #region Initializer
+        #region BaseClientServiceInitializer
 
-        /// <summary>An initializer class for the authorization code flow. </summary>
+        /// <summary>An baseClientServiceInitializer class for the authorization code flow. </summary>
         public class Initializer
         {
             /// <summary>
@@ -100,7 +101,7 @@ namespace Google.Apis.Auth.OAuth2.Flows
             /// </summary>
             public IClock Clock { get; set; }
 
-            /// <summary>Constructs a new initializer.</summary>
+            /// <summary>Constructs a new baseClientServiceInitializer.</summary>
             /// <param name="authorizationServerUrl">Authorization server URL</param>
             /// <param name="tokenServerUrl">Token server URL</param>
             public Initializer(string authorizationServerUrl, string tokenServerUrl)
@@ -148,7 +149,7 @@ namespace Google.Apis.Auth.OAuth2.Flows
         /// <summary>Gets the HTTP client used to make authentication requests to the server.</summary>
         public ConfigurableHttpClient HttpClient { get { return httpClient; } }
 
-        /// <summary>Constructs a new flow using the initializer's properties.</summary>
+        /// <summary>Constructs a new flow using the baseClientServiceInitializer's properties.</summary>
         public AuthorizationCodeFlow(Initializer initializer)
         {
             clientSecrets = initializer.ClientSecrets;
@@ -156,7 +157,7 @@ namespace Google.Apis.Auth.OAuth2.Flows
             {
                 if (initializer.ClientSecretsStream == null)
                 {
-                    throw new ArgumentException("You MUST set ClientSecret or ClientSecretStream on the initializer");
+                    throw new ArgumentException("You MUST set ClientSecret or ClientSecretStream on the baseClientServiceInitializer");
                 }
 
                 using (initializer.ClientSecretsStream)
@@ -167,14 +168,14 @@ namespace Google.Apis.Auth.OAuth2.Flows
             else if (initializer.ClientSecretsStream != null)
             {
                 throw new ArgumentException(
-                    "You CAN'T set both ClientSecrets AND ClientSecretStream on the initializer");
+                    "You CAN'T set both ClientSecrets AND ClientSecretStream on the baseClientServiceInitializer");
             }
 
-            accessMethod = initializer.AccessMethod.ThrowIfNull("Initializer.AccessMethod");
-            clock = initializer.Clock.ThrowIfNull("Initializer.Clock");
-            tokenServerUrl = initializer.TokenServerUrl.ThrowIfNullOrEmpty("Initializer.TokenServerUrl");
+            accessMethod = initializer.AccessMethod.ThrowIfNull("BaseClientServiceInitializer.AccessMethod");
+            clock = initializer.Clock.ThrowIfNull("BaseClientServiceInitializer.Clock");
+            tokenServerUrl = initializer.TokenServerUrl.ThrowIfNullOrEmpty("BaseClientServiceInitializer.TokenServerUrl");
             authorizationServerUrl = initializer.AuthorizationServerUrl.ThrowIfNullOrEmpty
-                ("Initializer.AuthorizationServerUrl");
+                ("BaseClientServiceInitializer.AuthorizationServerUrl");
 
             dataStore = initializer.DataStore;
             if (dataStore == null)
@@ -186,13 +187,17 @@ namespace Google.Apis.Auth.OAuth2.Flows
             // Set the HTTP client.
             var httpArgs = new CreateHttpClientArgs();
 
-            // Add exponential back-off initializer if necessary.
+            // Add exponential back-off baseClientServiceInitializer if necessary.
             if (initializer.DefaultExponentialBackOffPolicy != ExponentialBackOffPolicy.None)
             {
                 httpArgs.Initializers.Add(
                     new ExponentialBackOffInitializer(initializer.DefaultExponentialBackOffPolicy,
                         () => new BackOffHandler(new ExponentialBackOff())));
             }
+
+            Debug.WriteLine($"AuthorizationCodeFlow.ctor baseClientServiceInitializer {initializer != null} {initializer?.GetType().Name} {initializer?.HttpClientFactory?.GetType().Name}");
+
+
             httpClient = (initializer.HttpClientFactory ?? new HttpClientFactory()).CreateHttpClient(httpArgs);
         }
 
@@ -240,16 +245,22 @@ namespace Google.Apis.Auth.OAuth2.Flows
         public async Task<TokenResponse> ExchangeCodeForTokenAsync(string userId, string code, string redirectUri,
             CancellationToken taskCancellationToken)
         {
+            System.Diagnostics.Debug.WriteLine("ExchangeCodeForTokenAsync 001 " + code);
             var authorizationCodeTokenReq = new AuthorizationCodeTokenRequest
             {
                 Scope = string.Join(" ", Scopes),
                 RedirectUri = redirectUri,
                 Code = code,
+                ClientId = clientSecrets.ClientId,
+                //ClientSecret = clientSecrets.ClientSecret
             };
 
+            System.Diagnostics.Debug.WriteLine("ExchangeCodeForTokenAsync 002 ");
             var token = await FetchTokenAsync(userId, authorizationCodeTokenReq, taskCancellationToken)
                 .ConfigureAwait(false);
+            System.Diagnostics.Debug.WriteLine("ExchangeCodeForTokenAsync 003 ");
             await StoreTokenAsync(userId, token, taskCancellationToken).ConfigureAwait(false);
+            System.Diagnostics.Debug.WriteLine("ExchangeCodeForTokenAsync 004 ExpiresInSeconds=" + token.ExpiresInSeconds);
             return token;
         }
 
@@ -293,6 +304,7 @@ namespace Google.Apis.Auth.OAuth2.Flows
             taskCancellationToken.ThrowIfCancellationRequested();
             if (DataStore != null)
             {
+                Debug.WriteLine(DataStore.GetType().Name);
                 await DataStore.StoreAsync<TokenResponse>(userId, token).ConfigureAwait(false);
             }
         }
@@ -306,28 +318,39 @@ namespace Google.Apis.Auth.OAuth2.Flows
         public async Task<TokenResponse> FetchTokenAsync(string userId, TokenRequest request,
             CancellationToken taskCancellationToken)
         {
+            System.Diagnostics.Debug.WriteLine("FetchTokenAsync 001 ");
             // Add client id and client secret to requests.
             request.ClientId = ClientSecrets.ClientId;
             request.ClientSecret = ClientSecrets.ClientSecret;
 
             try
             {
+                System.Diagnostics.Debug.WriteLine("FetchTokenAsync 002 ");
                 var tokenResponse = await request.ExecuteAsync
                     (httpClient, TokenServerUrl, taskCancellationToken, Clock).ConfigureAwait(false);
+
+                System.Diagnostics.Debug.WriteLine("FetchTokenAsync 003 " + tokenResponse?.IdToken);
                 return tokenResponse;
             }
             catch (TokenResponseException ex)
             {
+                System.Diagnostics.Debug.WriteLine("FetchTokenAsync Error 001" + ex.ToString());
                 // In case there is an exception during getting the token, we delete any user's token information from 
                 // the data store if it's not a server-side error.
                 int statusCode = (int)(ex.StatusCode ?? (HttpStatusCode)0);
                 bool serverError = statusCode >= 500 && statusCode < 600;
+                System.Diagnostics.Debug.WriteLine("FetchTokenAsync Error 002");
                 if (!serverError)
                 {
+                    System.Diagnostics.Debug.WriteLine("FetchTokenAsync Error 003");
                     // If not a server error, then delete the user token information.
                     // This is to guard against suspicious client-side behaviour.
                     await DeleteTokenAsync(userId, taskCancellationToken).ConfigureAwait(false);
+
+                    System.Diagnostics.Debug.WriteLine("FetchTokenAsync Error 004");
                 }
+
+                System.Diagnostics.Debug.WriteLine("FetchTokenAsync Error 005");
                 throw;
             }
         }
