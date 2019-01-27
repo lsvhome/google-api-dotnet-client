@@ -21,8 +21,10 @@ using Google.Apis.Json;
 
 namespace Google.Apis.Services
 {
+    public abstract partial class BaseClientService
+    {
         /// <summary>An baseClientServiceInitializer class for the client service.</summary>
-        public class BaseClientServiceInitializer
+        public class Initializer
         {
             /// <summary>
             /// Gets or sets the factory for creating <see cref="System.Net.Http.HttpClient"/> instance. If this 
@@ -71,7 +73,7 @@ namespace Google.Apis.Services
             public uint MaxUrlLength { get; set; }
 
             /// <summary>Constructs a new baseClientServiceInitializer with default values.</summary>
-            public BaseClientServiceInitializer()
+            public Initializer()
             {
                 //GZipEnabled = true;
                 Serializer = new NewtonsoftJsonSerializer();
@@ -90,4 +92,5 @@ namespace Google.Apis.Services
                 }
             }
         }
+    }
 }

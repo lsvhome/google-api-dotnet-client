@@ -62,7 +62,7 @@ namespace Google.Apis.Services
         #endregion
 
         /// <summary>Constructs a new base client with the specified baseClientServiceInitializer.</summary>
-        protected BaseClientService(BaseClientServiceInitializer baseClientServiceInitializer)
+        protected BaseClientService(BaseClientService.Initializer baseClientServiceInitializer)
         {
             baseClientServiceInitializer.Validate();
             // Set the right properties by the baseClientServiceInitializer's properties.
@@ -86,7 +86,7 @@ namespace Google.Apis.Services
             return Features.Contains(Utilities.GetEnumStringValue(feature));
         }
 
-        private ConfigurableHttpClient CreateHttpClient(BaseClientServiceInitializer baseClientServiceInitializer)
+        private ConfigurableHttpClient CreateHttpClient(BaseClientService.Initializer baseClientServiceInitializer)
         {
             // If factory wasn't set use the default HTTP client factory.
             var factory = baseClientServiceInitializer.HttpClientFactory ?? new HttpClientFactory();

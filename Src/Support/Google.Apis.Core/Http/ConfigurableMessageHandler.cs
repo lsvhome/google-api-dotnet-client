@@ -39,7 +39,15 @@ namespace Google.Apis.Http
     public class ConfigurableMessageHandler : DelegatingHandler
     {
         /// <summary>The class logger.</summary>
-        private static readonly ILogger Logger = ApplicationContext.Logger.ForType<ConfigurableMessageHandler>();
+        private static readonly ILogger Logger;// = ApplicationContext.Logger.ForType<ConfigurableMessageHandler>();
+
+        static ConfigurableMessageHandler()
+        {
+            System.Diagnostics.Debug.WriteLine("PPP0");
+            Logger = ApplicationContext.Logger.ForType<ConfigurableMessageHandler>();
+            System.Diagnostics.Debug.WriteLine("PPP1 " + Logger.GetType().Name);
+            System.Diagnostics.Debug.WriteLine("PPP2 " + ApplicationContext.Logger.GetType().Name);
+        }
 
         /// <summary>Maximum allowed number of tries.</summary>
         [VisibleForTestOnly]
@@ -369,6 +377,7 @@ namespace Google.Apis.Http
             //request.RequestUri = new Uri("http://ukr.net/");
             //request.
             var loggable = IsLoggingEnabled && InstanceLogger.IsDebugEnabled;
+            System.Diagnostics.Debug.WriteLine($"UUUUUUU {loggable} {IsLoggingEnabled} {InstanceLogger.IsDebugEnabled} {InstanceLogger.GetType().Name}");
             string loggingRequestId = "";
             if (loggable)
             {
@@ -506,8 +515,10 @@ namespace Google.Apis.Http
                 }
                 else
                 {
+                    System.Diagnostics.Debug.WriteLine($"JJJJJJJJJJJJJJJJJJJJJ {loggable} {LogEvents} {LogEvents & LogEventType.ResponseBody}");
                     if (loggable)
                     {
+                        System.Diagnostics.Debug.WriteLine($"KKKKKKKKK");
                         if ((LogEvents & LogEventType.ResponseStatus) != 0)
                         {
                             InstanceLogger.Debug("Response[{0}] Response status: {1} '{2}'", loggingRequestId, response.StatusCode, response.ReasonPhrase);
@@ -518,6 +529,7 @@ namespace Google.Apis.Http
                         }
                         if ((LogEvents & LogEventType.ResponseBody) != 0)
                         {
+                            System.Diagnostics.Debug.WriteLine($"MMMMMMMM");
                             await LogBody($"Response[{loggingRequestId}] Body: '{{0}}'", response.Content);
                         }
                     }
