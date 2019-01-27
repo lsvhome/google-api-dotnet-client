@@ -16,6 +16,7 @@ limitations under the License.
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -47,7 +48,7 @@ namespace Google.Apis.Services
     /// class adds the Authenticator to the <see cref="Google.Apis.Http.ConfigurableMessageHandler"/>'s unsuccessful 
     /// response handler list.
     /// </summary>
-    public abstract class BaseClientService : IClientService
+    public abstract partial class BaseClientService : IClientService
     {
         /// <summary>The class logger.</summary>
         private static readonly ILogger Logger = ApplicationContext.Logger.ForType<BaseClientService>();
@@ -56,97 +57,27 @@ namespace Google.Apis.Services
         [VisibleForTestOnly]
         public const uint DefaultMaxUrlLength = 2048;
 
-        #region Initializer
-
-        /// <summary>An initializer class for the client service.</summary>
-        public class Initializer
-        {
-            /// <summary>
-            /// Gets or sets the factory for creating <see cref="System.Net.Http.HttpClient"/> instance. If this 
-            /// property is not set the service uses a new <see cref="Google.Apis.Http.HttpClientFactory"/> instance.
-            /// </summary>
-            public IHttpClientFactory HttpClientFactory { get; set; }
-
-            /// <summary>
-            /// Gets or sets a HTTP client initializer which is able to customize properties on 
-            /// <see cref="Google.Apis.Http.ConfigurableHttpClient"/> and 
-            /// <see cref="Google.Apis.Http.ConfigurableMessageHandler"/>.
-            /// </summary>
-            public IConfigurableHttpClientInitializer HttpClientInitializer { get; set; }
-
-            /// <summary>
-            /// Get or sets the exponential back-off policy used by the service. Default value is 
-            /// <c>UnsuccessfulResponse503</c>, which means that exponential back-off is used on 503 abnormal HTTP
-            /// response.
-            /// If the value is set to <c>None</c>, no exponential back-off policy is used, and it's up to the user to
-            /// configure the <see cref="Google.Apis.Http.ConfigurableMessageHandler"/> in an
-            /// <see cref="Google.Apis.Http.IConfigurableHttpClientInitializer"/> to set a specific back-off
-            /// implementation (using <see cref="Google.Apis.Http.BackOffHandler"/>).
-            /// </summary>
-            public ExponentialBackOffPolicy DefaultExponentialBackOffPolicy { get; set; }
-
-            /// <summary>Gets or sets whether this service supports GZip. Default value is <c>true</c>.</summary>
-            public bool GZipEnabled { get; set; }
-
-            /// <summary>
-            /// Gets or sets the serializer. Default value is <see cref="Google.Apis.Json.NewtonsoftJsonSerializer"/>.
-            /// </summary>
-            public ISerializer Serializer { get; set; }
-
-            /// <summary>Gets or sets the API Key. Default value is <c>null</c>.</summary>
-            public string ApiKey { get; set; }
-
-            /// <summary>
-            /// Gets or sets Application name to be used in the User-Agent header. Default value is <c>null</c>. 
-            /// </summary>
-            public string ApplicationName { get; set; }
-
-            /// <summary>
-            /// Maximum allowed length of a URL string for GET requests. Default value is <c>2048</c>. If the value is
-            /// set to <c>0</c>, requests will never be modified due to URL string length.
-            /// </summary>
-            public uint MaxUrlLength { get; set; }
-
-            /// <summary>Constructs a new initializer with default values.</summary>
-            public Initializer()
-            {
-                GZipEnabled = true;
-                Serializer = new NewtonsoftJsonSerializer();
-                DefaultExponentialBackOffPolicy = ExponentialBackOffPolicy.UnsuccessfulResponse503;
-                MaxUrlLength = DefaultMaxUrlLength;
-            }
-
-            // HttpRequestMessage.Headers fails if any of these characters are included in a User-Agent header.
-            private const string InvalidApplicationNameCharacters = "\"(),:;<=>?@[\\]{}";
-
-            internal void Validate()
-            {
-                if (ApplicationName != null && ApplicationName.Any(c => InvalidApplicationNameCharacters.Contains(c)))
-                {
-                    throw new ArgumentException("Invalid Application name", nameof(ApplicationName));
-                }
-            }
-        }
+#region BaseClientServiceInitializer
 
         #endregion
 
-        /// <summary>Constructs a new base client with the specified initializer.</summary>
-        protected BaseClientService(Initializer initializer)
+        /// <summary>Constructs a new base client with the specified baseClientServiceInitializer.</summary>
+        protected BaseClientService(BaseClientService.Initializer baseClientServiceInitializer)
         {
-            initializer.Validate();
-            // Set the right properties by the initializer's properties.
-            GZipEnabled = initializer.GZipEnabled;
-            Serializer = initializer.Serializer;
-            ApiKey = initializer.ApiKey;
-            ApplicationName = initializer.ApplicationName;
+            baseClientServiceInitializer.Validate();
+            // Set the right properties by the baseClientServiceInitializer's properties.
+            GZipEnabled = baseClientServiceInitializer.GZipEnabled;
+            Serializer = baseClientServiceInitializer.Serializer;
+            ApiKey = baseClientServiceInitializer.ApiKey;
+            ApplicationName = baseClientServiceInitializer.ApplicationName;
             if (ApplicationName == null)
             {
-                Logger.Warning("Application name is not set. Please set Initializer.ApplicationName property");
+                Logger.Warning("Application name is not set. Please set BaseClientServiceInitializer.ApplicationName property");
             }
-            HttpClientInitializer = initializer.HttpClientInitializer;
+            HttpClientInitializer = baseClientServiceInitializer.HttpClientInitializer;
 
             // Create a HTTP client for this service.
-            HttpClient = CreateHttpClient(initializer);
+            HttpClient = CreateHttpClient(baseClientServiceInitializer);
         }
 
         /// <summary>Returns <c>true</c> if this service contains the specified feature.</summary>
@@ -155,33 +86,33 @@ namespace Google.Apis.Services
             return Features.Contains(Utilities.GetEnumStringValue(feature));
         }
 
-        private ConfigurableHttpClient CreateHttpClient(Initializer initializer)
+        private ConfigurableHttpClient CreateHttpClient(BaseClientService.Initializer baseClientServiceInitializer)
         {
             // If factory wasn't set use the default HTTP client factory.
-            var factory = initializer.HttpClientFactory ?? new HttpClientFactory();
+            var factory = baseClientServiceInitializer.HttpClientFactory ?? new HttpClientFactory();
             var args = new CreateHttpClientArgs
                 {
                     GZipEnabled = GZipEnabled,
                     ApplicationName = ApplicationName,
                 };
 
-            // Add the user's input initializer.
+            // Add the user's input baseClientServiceInitializer.
             if (HttpClientInitializer != null)
             {
                 args.Initializers.Add(HttpClientInitializer);
             }
 
-            // Add exponential back-off initializer if necessary.
-            if (initializer.DefaultExponentialBackOffPolicy != ExponentialBackOffPolicy.None)
+            // Add exponential back-off baseClientServiceInitializer if necessary.
+            if (baseClientServiceInitializer.DefaultExponentialBackOffPolicy != ExponentialBackOffPolicy.None)
             {
-                args.Initializers.Add(new ExponentialBackOffInitializer(initializer.DefaultExponentialBackOffPolicy,
+                args.Initializers.Add(new ExponentialBackOffInitializer(baseClientServiceInitializer.DefaultExponentialBackOffPolicy,
                     CreateBackOffHandler));
             }
 
             var httpClient = factory.CreateHttpClient(args);
-            if (initializer.MaxUrlLength > 0)
+            if (baseClientServiceInitializer.MaxUrlLength > 0)
             {
-                httpClient.MessageHandler.AddExecuteInterceptor(new MaxUrlLengthInterceptor(initializer.MaxUrlLength));
+                httpClient.MessageHandler.AddExecuteInterceptor(new MaxUrlLengthInterceptor(baseClientServiceInitializer.MaxUrlLength));
             }
             return httpClient;
         }
@@ -232,63 +163,91 @@ namespace Google.Apis.Services
         /// <inheritdoc/>
         public virtual async Task<T> DeserializeResponse<T>(HttpResponseMessage response)
         {
+            //Debug.WriteLine("DeserializeResponse 001 ");
             var text = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+            //Debug.WriteLine("DeserializeResponse 002 " + text);
+
 
             // If a string is request, don't parse the response.
-			if (Type.Equals(typeof(T), typeof(string)))
+            if (Type.Equals(typeof(T), typeof(string)))
             {
+                //Debug.WriteLine("DeserializeResponse 003 ");
                 return (T)(object)text;
             }
+
+            //Debug.WriteLine("DeserializeResponse 004 ");
 
             // Check if there was an error returned. The error node is returned in both paths
             // Deserialize the stream based upon the format of the stream.
             if (HasFeature(Discovery.Features.LegacyDataResponse))
             {
+                //Debug.WriteLine("DeserializeResponse 005 ");
                 // Legacy path (deprecated!)
                 StandardResponse<T> sr = null;
                 try
                 {
+                    //Debug.WriteLine("DeserializeResponse 006 ");
                     sr = Serializer.Deserialize<StandardResponse<T>>(text);
+                    //Debug.WriteLine("DeserializeResponse 007 ");
                 }
                 catch (JsonReaderException ex)
                 {
+                    //Debug.WriteLine("DeserializeResponse 008 ");
                     throw new GoogleApiException(Name,
                         "Failed to parse response from server as json [" + text + "]", ex);
                 }
 
+                //Debug.WriteLine("DeserializeResponse 009 ");
                 if (sr.Error != null)
                 {
+                    //Debug.WriteLine("DeserializeResponse 010 ");
                     throw new GoogleApiException(Name, "Server error - " + sr.Error)
                     {
                         Error = sr.Error
                     };
                 }
 
+                //Debug.WriteLine("DeserializeResponse 011 ");
                 if (sr.Data == null)
                 {
+                    //Debug.WriteLine("DeserializeResponse 012 ");
                     throw new GoogleApiException(Name, "The response could not be deserialized.");
                 }
+
+                //Debug.WriteLine("DeserializeResponse 013 ");
                 return sr.Data;
             }
 
+            //Debug.WriteLine("DeserializeResponse 014 ");
             // New path: Deserialize the object directly.
             T result = default(T);
+            //Debug.WriteLine("DeserializeResponse 015 ");
             try
             {
+                Debug.WriteLine($"DeserializeResponse 016 {Serializer != null} {Serializer?.GetType().FullName}");
                 result = Serializer.Deserialize<T>(text);
+                //Debug.WriteLine("DeserializeResponse 017 ");
             }
             catch (JsonReaderException ex)
             {
+                //Debug.WriteLine("DeserializeResponse 018 ");
                 throw new GoogleApiException(Name, "Failed to parse response from server as json [" + text + "]", ex);
             }
 
             // TODO(peleyal): is this the right place to check ETag? it isn't part of deserialization!
             // If this schema/object provides an error container, check it.
             var eTag = response.Headers.ETag != null ? response.Headers.ETag.Tag : null;
+
+            //Debug.WriteLine("DeserializeResponse 019 ");
+
             if (result is IDirectResponseSchema && eTag != null)
             {
+                //Debug.WriteLine("DeserializeResponse 020 ");
                 (result as IDirectResponseSchema).ETag = eTag;
+                //Debug.WriteLine("DeserializeResponse 021 ");
             }
+
+            //Debug.WriteLine("DeserializeResponse 022 ");
             return result;
         }
 

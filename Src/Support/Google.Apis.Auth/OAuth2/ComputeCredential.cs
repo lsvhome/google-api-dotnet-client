@@ -66,11 +66,11 @@ namespace Google.Apis.Auth.OAuth2
         /// </summary>
         new public class Initializer : ServiceCredential.Initializer
         {
-            /// <summary>Constructs a new initializer using the default compute token URL.</summary>
+            /// <summary>Constructs a new baseClientServiceInitializer using the default compute token URL.</summary>
             public Initializer()
                 : this(GoogleAuthConsts.ComputeTokenUrl) {}
 
-            /// <summary>Constructs a new initializer using the given token URL.</summary>
+            /// <summary>Constructs a new baseClientServiceInitializer using the given token URL.</summary>
             public Initializer(string tokenUrl)
                 : base(tokenUrl) {}
         }

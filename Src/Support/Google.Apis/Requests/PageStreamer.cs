@@ -38,7 +38,7 @@ namespace Google.Apis.Requests
     /// such as the following. The pattern for other APIs would be very similar, with the <c>request.PageToken</c>,
     /// <c>response.NextPageToken</c> and <c>response.Items</c> properties potentially having different names. Constructing
     /// the page streamer doesn't require any service references or authentication, so it's completely safe to perform this
-    /// in a type initializer.
+    /// in a type baseClientServiceInitializer.
     /// <code><![CDATA[
     /// using Google.Apis.YouTube.v3;
     /// using Google.Apis.YouTube.v3.Data;

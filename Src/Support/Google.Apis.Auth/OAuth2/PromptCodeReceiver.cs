@@ -39,13 +39,26 @@ namespace Google.Apis.Auth.OAuth2
         public Task<AuthorizationCodeResponseUrl> ReceiveCodeAsync(AuthorizationCodeRequestUrl url,
             CancellationToken taskCancellationToken)
         {
+
             var authorizationUrl = url.Build().AbsoluteUri;
 
-#if NETSTANDARD1_3
+#if NETSTANDARD1_3 || NETSTANDARD2_0
+            System.Diagnostics.Debug.WriteLine(authorizationUrl);
+            System.Diagnostics.Debug.WriteLine("Requested user open a browser with \"{0}\" URL", authorizationUrl);
+            System.Diagnostics.Debug.WriteLine("Please visit the following URL in a web browser, then enter the code shown after authorization:");
+
             Logger.Debug("Requested user open a browser with \"{0}\" URL", authorizationUrl);
             Console.WriteLine("Please visit the following URL in a web browser, then enter the code shown after authorization:");
             Console.WriteLine(authorizationUrl);
             Console.WriteLine();
+
+            string url1 = authorizationUrl;
+            url1 = System.Text.RegularExpressions.Regex.Replace(url1, @"(\\*)" + "\"", @"$1$1\" + "\"");
+            url1 = System.Text.RegularExpressions.Regex.Replace(url1, @"(\\+)$", @"$1$1");
+
+            Console.WriteLine(url1);
+            Console.WriteLine();
+
 #elif NET45
             Logger.Debug("Open a browser with \"{0}\" URL", authorizationUrl);
             System.Diagnostics.Process.Start(authorizationUrl);

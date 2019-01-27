@@ -93,7 +93,7 @@ namespace Google.Apis.Auth.OAuth2
                 if (s_callbackUriTemplate == null)
                 {
                     s_callbackUriTemplate = CallbackUriTemplate127001;
-#if NETSTANDARD1_3
+#if NETSTANDARD1_3 || NETSTANDARD2_0
                     // No check required on NETStandard, it uses TcpListener which can only use IP adddresses, not DNS names.
 #elif NET45
                     // On first run, check whether it's possible to start a listener on 127.0.0.1
@@ -358,7 +358,11 @@ namespace Google.Apis.Auth.OAuth2
         public async Task<AuthorizationCodeResponseUrl> ReceiveCodeAsync(AuthorizationCodeRequestUrl url,
             CancellationToken taskCancellationToken)
         {
+
             var authorizationUrl = url.Build().AbsoluteUri;
+
+            System.Diagnostics.Debug.WriteLine(authorizationUrl);
+
             // The listener type depends on platform:
             // * .NET desktop: System.Net.HttpListener
             // * .NET Core: LimitedLocalhostHttpServer (above, HttpListener is not available in any version of netstandard)
@@ -395,7 +399,7 @@ namespace Google.Apis.Auth.OAuth2
         /// <summary>Returns a random, unused port.</summary>
         private static int GetRandomUnusedPort()
         {
-            var listener = new TcpListener(IPAddress.Loopback, 0);
+            var listener = new System.Net.Sockets.TcpListener(IPAddress.Loopback, 0);
             try
             {
                 listener.Start();
@@ -407,7 +411,7 @@ namespace Google.Apis.Auth.OAuth2
             }
         }
 
-#if NETSTANDARD1_3
+#if NETSTANDARD1_3 || NETSTANDARD2_0
         private LimitedLocalhostHttpServer StartListener() => LimitedLocalhostHttpServer.Start(RedirectUri);
 
         private async Task<AuthorizationCodeResponseUrl> GetResponseFromListener(LimitedLocalhostHttpServer server, CancellationToken ct)
@@ -418,7 +422,7 @@ namespace Google.Apis.Auth.OAuth2
             return new AuthorizationCodeResponseUrl(queryParams);
         }
 
-        private bool OpenBrowser(string url)
+        protected virtual bool OpenBrowser(string url)
         {
             // See https://github.com/dotnet/corefx/issues/10361
             // This is best-effort only, but should work most of the time.

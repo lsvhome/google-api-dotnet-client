@@ -48,6 +48,7 @@ namespace Google
                 throw new InvalidOperationException("A logger was already registered with this context.");
             }
             logger = loggerToRegister;
+            System.Diagnostics.Debug.WriteLine("RegisterLogger " + logger.GetType().Name);
         }
     }
 }

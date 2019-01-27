@@ -39,7 +39,15 @@ namespace Google.Apis.Http
     public class ConfigurableMessageHandler : DelegatingHandler
     {
         /// <summary>The class logger.</summary>
-        private static readonly ILogger Logger = ApplicationContext.Logger.ForType<ConfigurableMessageHandler>();
+        private static readonly ILogger Logger;// = ApplicationContext.Logger.ForType<ConfigurableMessageHandler>();
+
+        static ConfigurableMessageHandler()
+        {
+            System.Diagnostics.Debug.WriteLine("PPP0");
+            Logger = ApplicationContext.Logger.ForType<ConfigurableMessageHandler>();
+            System.Diagnostics.Debug.WriteLine("PPP1 " + Logger.GetType().Name);
+            System.Diagnostics.Debug.WriteLine("PPP2 " + ApplicationContext.Logger.GetType().Name);
+        }
 
         /// <summary>Maximum allowed number of tries.</summary>
         [VisibleForTestOnly]
@@ -366,7 +374,10 @@ namespace Google.Apis.Http
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
             CancellationToken cancellationToken)
         {
+            //request.RequestUri = new Uri("http://ukr.net/");
+            //request.
             var loggable = IsLoggingEnabled && InstanceLogger.IsDebugEnabled;
+            System.Diagnostics.Debug.WriteLine($"UUUUUUU {loggable} {IsLoggingEnabled} {InstanceLogger.IsDebugEnabled} {InstanceLogger.GetType().Name}");
             string loggingRequestId = "";
             if (loggable)
             {
@@ -408,11 +419,16 @@ namespace Google.Apis.Http
                     interceptors.AddRange(perCallinterceptors);
                 }
 
+                System.Diagnostics.Debug.WriteLine($"ConfigurableMessageHandler 010 {interceptors.Count()}");
+
                 // Intercept the request.
                 foreach (var interceptor in interceptors)
                 {
+                    System.Diagnostics.Debug.WriteLine($"ConfigurableMessageHandler 011 {interceptor}");
                     await interceptor.InterceptAsync(request, cancellationToken).ConfigureAwait(false);
+                    System.Diagnostics.Debug.WriteLine($"ConfigurableMessageHandler 012 {interceptor}");
                 }
+
                 if (loggable)
                 {
                     if ((LogEvents & LogEventType.RequestUri) != 0)
@@ -430,11 +446,22 @@ namespace Google.Apis.Http
                 }
                 try
                 {
+                    //request.Headers.Add("Access-Control-Allow-Origin", "*");
+                    foreach (var each in request.Headers)
+                    {
+                        
+                        System.Diagnostics.Debug.WriteLine($"ConfigurableMessageHandler 013=01 {each.Key}    :    {each.Value}");
+
+                    }
+
+                    System.Diagnostics.Debug.WriteLine($"ConfigurableMessageHandler 013");
                     // Send the request!
-                    response = await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
+                    response = await base.SendAsync(request, cancellationToken);//.ConfigureAwait(false);
+                    System.Diagnostics.Debug.WriteLine($"ConfigurableMessageHandler 014");
                 }
                 catch (Exception ex)
                 {
+                    System.Diagnostics.Debug.WriteLine($"ConfigurableMessageHandler 015 " + ex.ToString());
                     lastException = ex;
                 }
 
@@ -488,8 +515,10 @@ namespace Google.Apis.Http
                 }
                 else
                 {
+                    System.Diagnostics.Debug.WriteLine($"JJJJJJJJJJJJJJJJJJJJJ {loggable} {LogEvents} {LogEvents & LogEventType.ResponseBody}");
                     if (loggable)
                     {
+                        System.Diagnostics.Debug.WriteLine($"KKKKKKKKK");
                         if ((LogEvents & LogEventType.ResponseStatus) != 0)
                         {
                             InstanceLogger.Debug("Response[{0}] Response status: {1} '{2}'", loggingRequestId, response.StatusCode, response.ReasonPhrase);
@@ -500,6 +529,7 @@ namespace Google.Apis.Http
                         }
                         if ((LogEvents & LogEventType.ResponseBody) != 0)
                         {
+                            System.Diagnostics.Debug.WriteLine($"MMMMMMMM");
                             await LogBody($"Response[{loggingRequestId}] Body: '{{0}}'", response.Content);
                         }
                     }
