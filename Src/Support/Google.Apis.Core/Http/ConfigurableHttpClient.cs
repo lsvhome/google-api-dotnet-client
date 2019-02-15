@@ -34,5 +34,11 @@ namespace Google.Apis.Http
             MessageHandler = handler;
             DefaultRequestHeaders.ExpectContinue = false;
         }
+
+        protected override void Dispose(bool disposing)
+        {
+            MessageHandler.Dispose();
+            base.Dispose(disposing);
+        }
     }
 }

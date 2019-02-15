@@ -179,11 +179,11 @@ namespace Google.Apis.Requests
             using (var request = CreateRequest())
             {
                 Debug.WriteLine("YYYYYYYYYYYYY "+service.HttpClient.GetType().Name);
-                var t = await service.HttpClient.GetAsync("http://localhost:59807/api/Config/ClientConfig");
-                Debug.WriteLine("FFFFFFFFFFFFFFFF " + t.IsSuccessStatusCode);
+                //var t = await service.HttpClient.GetAsync("http://localhost:59807/api/Config/ClientConfig");
+                //Debug.WriteLine("FFFFFFFFFFFFFFFF " + t.IsSuccessStatusCode);
                 Debug.WriteLine("FFFFFFFFFFFFFFFF01 " + service.HttpClient);
                 Debug.WriteLine("FFFFFFFFFFFFFFFF02 " + service.HttpClient.BaseAddress);
-                service.HttpClient.BaseAddress = new Uri("https://drive.google.com");
+                //service.HttpClient.BaseAddress = new Uri("https://drive.google.com");
                 //service.HttpClient.DefaultRequestHeaders.
                 Debug.WriteLine("FFFFFFFFFFFFFFFF03 " + service.HttpClient.BaseAddress);
                 return await service.HttpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
