@@ -3,7 +3,7 @@
   <Import Project="..\CommonProjectProperties.xml" />
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net45</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net45;netstandard1.3</TargetFrameworks>
     <TargetFrameworks Condition="'$(OS)' != 'Windows_NT'">netstandard2.0;netstandard1.3</TargetFrameworks>
     <IsPackable>false</IsPackable>
     <DelaySign>false</DelaySign>
